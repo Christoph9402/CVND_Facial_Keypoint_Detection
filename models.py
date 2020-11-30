@@ -16,15 +16,21 @@ class Net(nn.Module):
         #output: 32, (224-5)/1 + 1= 220,
         self.pool1 = nn.MaxPool2d(2, 2)
         #output: 32, 220/2= 110,
-        self.do1=nn.Dropout(0.2)
+        self.do1=nn.Dropout(0.3)
         #input: 32,64(feature_maps),5(5x5 filter)
         self.conv2=nn.Conv2d(32,64,5)
-        #output: 64, (60-5)/1+1=106
+        #output: 64, (110-5)/1+1=106
         self.pool2 = nn.MaxPool2d(2, 2)
         #output: 64, 53, 53
-        self.do2=nn.Dropout(0.2)
-        self.fc1=nn.Linear(64*53*53,500)
-        self.fc2=nn.Linear(500,136)
+        self.do2=nn.Dropout(0.25)
+        #input: 64,128,5(5x5 filter)
+        self.conv3=nn.Conv2d(64,128,5)
+        #output: 128, (53-5)/1+1=49
+        self.pool3 = nn.MaxPool2d(2, 2)
+        #output: 128, 24, 24
+        self.do3=nn.Dropout(0.2)
+        #self.fc1=nn.Linear(64*53*53,2500)
+        self.fc2=nn.Linear(128*24*24,136)
         
         ## TODO: Define all the layers of this CNN, the only requirements are:
         ## 1. This network takes in a square (same width and height), grayscale image as input
@@ -43,9 +49,10 @@ class Net(nn.Module):
         
         x= self.pool1(self.do1(F.relu(self.conv1(x))))
         x= self.pool2(self.do2(F.relu(self.conv2(x))))
+        x= self.pool3(self.do3(F.relu(self.conv3(x))))
         
         x=x.view(x.size(0),-1)
-        x=F.relu(self.fc1(x))
+        #x=F.relu(self.fc1(x))
         x=self.fc2(x)
         
         # a modified x, having gone through all the layers of your model, should be returned
